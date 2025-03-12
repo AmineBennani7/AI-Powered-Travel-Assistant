@@ -25,10 +25,9 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.chains import RetrievalQA
 from langchain.prompts.prompt import PromptTemplate
 
-#from notifTeams import enviar_notificacion_a_teams
 
-def load_dataset(dataset_name="oxford_food_hygiene_cleaned.csv"):
-    # Cargar un conjunto de datos desde un archivo CSV
+def load_dataset(dataset_name="data/restaurants.csv"):
+    # Load a dataset from a CSV file
     current_dir = os.path.dirname(os.path.realpath(__file__))  
     file_path = os.path.join(current_dir, dataset_name)  
 
@@ -37,43 +36,42 @@ def load_dataset(dataset_name="oxford_food_hygiene_cleaned.csv"):
     return df
 
 def create_chunks(dataset: pd.DataFrame, chunk_size: int, chunk_overlap: int):
-   """
-   Crea fragmentos de información a partir del conjunto de datos de negocios en Oxford.
-   """
-   chunks = DataFrameLoader(
-      dataset,
-      page_content_column="BusinessName",  
-  ).load_and_split(
-      text_splitter=RecursiveCharacterTextSplitter(
-          chunk_size=1000
-      )
-  )
+    """
+    Creates chunks of information from the dataset of businesses in Oxford.
+    """
+    chunks = DataFrameLoader(
+        dataset,
+        page_content_column="BusinessName",  
+    ).load_and_split(
+        text_splitter=RecursiveCharacterTextSplitter(
+            chunk_size=1000
+        )
+    )
 
-   for chunk in chunks:
-     business_name = chunk.page_content 
-     business_type = chunk.metadata['BusinessType']
-     address = chunk.metadata['FullAddress']
-     postcode = chunk.metadata['PostCode']
-     hygiene = chunk.metadata['Hygiene']
-     structural = chunk.metadata['Structural']
-     management_confidence = chunk.metadata['ConfidenceInManagement']
+    for chunk in chunks:
+        business_name = chunk.page_content 
+        business_type = chunk.metadata['BusinessType']
+        address = chunk.metadata['FullAddress']
+        postcode = chunk.metadata['PostCode']
+        hygiene = chunk.metadata['Hygiene']
+        structural = chunk.metadata['Structural']
+        management_confidence = chunk.metadata['ConfidenceInManagement']
 
-     content = (f"Business Name: {business_name} \n"
-                f"Type: {business_type} \n"
-                f"Address: {address} \n"
-                f"PostCode: {postcode} \n"
-                f"Hygiene Rating: {hygiene} \n"
-                f"Structural Rating: {structural} \n"
-                f"Confidence in Management: {management_confidence}")
-     
-     chunk.page_content = content  # Actualizar contenido del chunk
+        content = (f"Business Name: {business_name} \n"
+                   f"Type: {business_type} \n"
+                   f"Address: {address} \n"
+                   f"PostCode: {postcode} \n"
+                   f"Hygiene Rating: {hygiene} \n"
+                   f"Structural Rating: {structural} \n"
+                   f"Confidence in Management: {management_confidence}")
+        
+        chunk.page_content = content  # Update chunk content
 
-   return chunks
-
-
+    return chunks
 
 
 def get_embeddings(texts, model_name="bert-base-nli-mean-tokens"):
+    # Generate text embeddings using a pre-trained transformer model
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModel.from_pretrained(model_name)
     
@@ -86,16 +84,17 @@ def get_embeddings(texts, model_name="bert-base-nli-mean-tokens"):
     
     return embeddings
 
+
 from langchain_openai import OpenAIEmbeddings  
 
 def create_or_get_vector_store(chunks) -> FAISS:
-    """Crea o carga la base de datos vectorial de manera local"""
+    """Creates or loads the local vector database"""
     
-    # Usa OpenAIEmbeddings en lugar de una función
+    # Use OpenAIEmbeddings instead of a function
     embeddings = OpenAIEmbeddings()
 
     if not os.path.exists("./vectorialDB"):
-        print("CREANDO BASE DE DATOS")
+        print("CREATING VECTOR DATABASE")
         
         vectorstore = FAISS.from_documents(
             chunks, embeddings  
@@ -103,37 +102,21 @@ def create_or_get_vector_store(chunks) -> FAISS:
         vectorstore.save_local("./vectorialDB")
 
     else:
-        print("CARGANDO BASE DE DATOS")
+        print("LOADING VECTOR DATABASE")
         vectorstore = FAISS.load_local("./vectorialDB", embeddings, allow_dangerous_deserialization=True)
 
     return vectorstore
 
 
 
-
-def insert_bbdd(parseo):
-    client = MongoClient("mongodb://localhost:27017/")  
-    database = client["menu"]
-    tickets_collection = database["tickets"]
-    tickets_collection.insert_one(parseo)
-    client.close()
-
-def calculate_retriever(vector_store, dataset):
-    k_value = len(dataset)
-    print(k_value)
-  
-    retriever1 = vector_store.as_retriever()
-    retriever1.search_kwargs = {'k': 50}  # Retrieve only the top 5 most relevant documents
-    return retriever1
-
-def get_conversation_chain(retriever, query, memory):
+def get_conversation_chain(retriever, query, memory, prompt_template):
     """
     Creates a conversational retrieval chain to answer questions based on the dataset.
     """
-    # Ensure correct input variables
+    # 🔹 Use the passed prompt instead of a global variable
     prompt = PromptTemplate(
         input_variables=["history", "question"],  
-        template=system_message_prompt_info,  
+        template=prompt_template,  
     )
 
     # Initialize conversational retrieval chain
@@ -151,4 +134,3 @@ def get_conversation_chain(retriever, query, memory):
     response = retrieval_chain.invoke(query)  # ✅ FIXED
 
     return response['result']
- 
