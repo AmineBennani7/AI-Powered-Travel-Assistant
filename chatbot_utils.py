@@ -26,18 +26,19 @@ from langchain.chains import RetrievalQA
 from langchain.prompts.prompt import PromptTemplate
 
 
-def load_dataset(dataset_name="data/restaurants.csv"):
-    # Load a dataset from a CSV file
+def load_dataset(dataset_name):
+    """
+    Loads a dataset from a CSV file.
+    """
     current_dir = os.path.dirname(os.path.realpath(__file__))  
     file_path = os.path.join(current_dir, dataset_name)  
 
     df = pd.read_csv(file_path) 
-    
     return df
 
 def create_chunks(dataset: pd.DataFrame, chunk_size: int, chunk_overlap: int):
     """
-    Creates chunks of information from the dataset of businesses in Oxford.
+    Splits the dataset into smaller chunks for efficient processing.
     """
     chunks = DataFrameLoader(
         dataset,
@@ -71,7 +72,9 @@ def create_chunks(dataset: pd.DataFrame, chunk_size: int, chunk_overlap: int):
 
 
 def get_embeddings(texts, model_name="bert-base-nli-mean-tokens"):
-    # Generate text embeddings using a pre-trained transformer model
+    """
+    Generates text embeddings using a pre-trained transformer model.
+    """
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     model = AutoModel.from_pretrained(model_name)
     
@@ -85,41 +88,42 @@ def get_embeddings(texts, model_name="bert-base-nli-mean-tokens"):
     return embeddings
 
 
-from langchain_openai import OpenAIEmbeddings  
-
-def create_or_get_vector_store(chunks) -> FAISS:
-    """Creates or loads the local vector database"""
-    
-    # Use OpenAIEmbeddings instead of a function
+def create_or_get_vector_store(chunks, dataset_name) -> FAISS:
+    """
+    Creates or loads a vector database for each dataset.
+    """
     embeddings = OpenAIEmbeddings()
 
-    if not os.path.exists("./vectorialDB"):
-        print("CREATING VECTOR DATABASE")
-        
-        vectorstore = FAISS.from_documents(
-            chunks, embeddings  
-        )
-        vectorstore.save_local("./vectorialDB")
+    vector_db_path = f"./vectorialDB/{dataset_name}"  # Dedicated vector database for each CSV file
+
+    if not os.path.exists(vector_db_path):
+        #print(f"CREATING VECTOR DATABASE FOR: {dataset_name}")
+
+        vectorstore = FAISS.from_documents(chunks, embeddings)
+        vectorstore.save_local(vector_db_path)
 
     else:
-        print("LOADING VECTOR DATABASE")
-        vectorstore = FAISS.load_local("./vectorialDB", embeddings, allow_dangerous_deserialization=True)
+        #print(f"LOADING VECTOR DATABASE FOR: {dataset_name}")
+        vectorstore = FAISS.load_local(vector_db_path, embeddings, allow_dangerous_deserialization=True)
 
     return vectorstore
 
 
-
-def get_conversation_chain(retriever, query, memory, prompt_template):
+def get_conversation_chain(retriever, dataset, query, memory, prompt_template):
     """
     Creates a conversational retrieval chain to answer questions based on the dataset.
     """
-    # 🔹 Use the passed prompt instead of a global variable
     prompt = PromptTemplate(
         input_variables=["history", "question"],  
         template=prompt_template,  
     )
 
-    # Initialize conversational retrieval chain
+    # Dynamically adjust `k` based on dataset size
+    dataset_size = len(dataset)
+    k_value = min(10, dataset_size)  # Take up to 10 elements or the entire dataset if smaller
+
+    retriever.search_kwargs = {"k": k_value}  # Use `k_value` instead of a fixed number
+
     retrieval_chain = RetrievalQA.from_chain_type(
         llm=ChatOpenAI(model="gpt-4-1106-preview", temperature=0.0),
         chain_type='stuff',
@@ -130,7 +134,6 @@ def get_conversation_chain(retriever, query, memory, prompt_template):
         }
     )
 
-    # Correct way to call the chain in LangChain 1.0+
-    response = retrieval_chain.invoke(query)  # ✅ FIXED
+    response = retrieval_chain.invoke(query)  
 
     return response['result']

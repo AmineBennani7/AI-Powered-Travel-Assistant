@@ -2,27 +2,12 @@ import xml.etree.ElementTree as ET
 import csv
 import os
 
-# Define the data folder where all CSV files will be saved
+# Configuration for folders and files
 data_folder = "data"
+xml_file = "food_hygiene.xml"
 os.makedirs(data_folder, exist_ok=True)  # Create the folder if it doesn't exist
 
-# Load and parse the XML file
-xml_file = "food_hygiene.xml"  # Update the filename if different
-tree = ET.parse(xml_file)
-root = tree.getroot()
-
-# Dictionary to store data by category
-category_data = {
-    "hotels": [],
-    "mobile_caterers": [],
-    "pubs": [],
-    "restaurants": [],
-    "retailers_other": [],
-    "retailers_supermarkets": [],
-    "takeaways": [],
-}
-
-# Mapping of business types to specific categories
+# Mapping of business types to categories
 category_mapping = {
     "Hotel/bed & breakfast/guest house": "hotels",
     "Mobile caterer": "mobile_caterers",
@@ -33,55 +18,76 @@ category_mapping = {
     "Takeaway/sandwich shop": "takeaways",
 }
 
-# Create the general CSV file inside the "data" folder
-csv_filename = os.path.join(data_folder, "oxford_food_hygiene_cleaned.csv")
-with open(csv_filename, "w", newline="", encoding="utf-8") as file:
-    writer = csv.writer(file)
-    writer.writerow(["FHRSID", "BusinessName", "BusinessType", "FullAddress", "PostCode", "Hygiene", "Structural", "ConfidenceInManagement"])
+# Categories to be combined into a single CSV
+combined_categories = ["hotels", "mobile_caterers", "retailers_supermarkets", "takeaways"]
 
-    # Extract relevant information from each business
-    for establishment in root.findall(".//EstablishmentDetail"):
-        fhrsid = establishment.find("FHRSID").text if establishment.find("FHRSID") is not None else None
-        business_name = establishment.find("BusinessName").text if establishment.find("BusinessName") is not None else None
-        business_type = establishment.find("BusinessType").text if establishment.find("BusinessType") is not None else None
-        address1 = establishment.find("AddressLine1").text if establishment.find("AddressLine1") is not None else ""
-        address2 = establishment.find("AddressLine2").text if establishment.find("AddressLine2") is not None else ""
-        address3 = establishment.find("AddressLine3").text if establishment.find("AddressLine3") is not None else ""
-        postcode = establishment.find("PostCode").text if establishment.find("PostCode") is not None else None
+# Keywords to exclude irrelevant businesses
+excluded_keywords = ["catering", "farmers", "hospitals", "distributors", "school", "manufacturers/packers"]
 
-        # Extract hygiene scores
-        hygiene = establishment.find("./Scores/Hygiene").text if establishment.find("./Scores/Hygiene") is not None else "N/A"
-        structural = establishment.find("./Scores/Structural").text if establishment.find("./Scores/Structural") is not None else "N/A"
-        confidence = establishment.find("./Scores/ConfidenceInManagement").text if establishment.find("./Scores/ConfidenceInManagement") is not None else "N/A"
+# Function to extract data from an establishment
+def extract_establishment_data(establishment):
+    data = {
+        "FHRSID": establishment.find("FHRSID").text if establishment.find("FHRSID") is not None else None,
+        "BusinessName": establishment.find("BusinessName").text if establishment.find("BusinessName") is not None else None,
+        "BusinessType": establishment.find("BusinessType").text if establishment.find("BusinessType") is not None else None,
+        "FullAddress": ", ".join(filter(None, [
+            establishment.find("AddressLine1").text if establishment.find("AddressLine1") is not None else "",
+            establishment.find("AddressLine2").text if establishment.find("AddressLine2") is not None else "",
+            establishment.find("AddressLine3").text if establishment.find("AddressLine3") is not None else "",
+        ])).strip(),
+        "PostCode": establishment.find("PostCode").text if establishment.find("PostCode") is not None else None,
+        "Hygiene": establishment.find("./Scores/Hygiene").text if establishment.find("./Scores/Hygiene") is not None else "N/A",
+        "Structural": establishment.find("./Scores/Structural").text if establishment.find("./Scores/Structural") is not None else "N/A",
+        "ConfidenceInManagement": establishment.find("./Scores/ConfidenceInManagement").text if establishment.find("./Scores/ConfidenceInManagement") is not None else "N/A",
+    }
+    return data
 
-        # Create a single address field
-        full_address = ", ".join(filter(None, [address1, address2, address3])).strip()
-
-        # Skip businesses with missing key data
-        if None in [fhrsid, business_name, business_type, full_address, postcode]:
-            continue
-
-        # Filter out irrelevant businesses
-        excluded_keywords = ["catering", "farmers", "hospitals", "distributors", "school", "manufacturers/packers"]
-        if any(keyword in business_type.lower() for keyword in excluded_keywords):
-            continue
-
-        # Write to the main CSV file
-        row = [fhrsid, business_name, business_type, full_address, postcode, hygiene, structural, confidence]
-        writer.writerow(row)
-
-        # Save to the corresponding category
-        category = category_mapping.get(business_type, None)
-        if category:
-            category_data[category].append(row)
-
-
-# Save each category as a separate CSV inside the "data" folder
-for category, rows in category_data.items():
-    category_filename = os.path.join(data_folder, f"{category}.csv")
-    with open(category_filename, "w", newline="", encoding="utf-8") as file:
+# Function to save data to a CSV file
+def save_to_csv(filename, headers, rows):
+    with open(filename, "w", newline="", encoding="utf-8") as file:
         writer = csv.writer(file)
-        writer.writerow(["FHRSID", "BusinessName", "BusinessType", "FullAddress", "PostCode", "Hygiene", "Structural", "ConfidenceInManagement"])
+        writer.writerow(headers)
         writer.writerows(rows)
-    print(f"File '{category_filename}' created with {len(rows)} records.")
+    print(f"File '{filename}' created with {len(rows)} records.")
 
+# Load and parse the XML file
+tree = ET.parse(xml_file)
+root = tree.getroot()
+
+# Dictionary to store data by category
+category_data = {category: [] for category in category_mapping.values()}
+
+# List to store combined data
+combined_rows = []
+
+# Process each establishment
+for establishment in root.findall(".//EstablishmentDetail"):
+    data = extract_establishment_data(establishment)
+
+    # Skip establishments with missing or irrelevant data
+    if None in [data["FHRSID"], data["BusinessName"], data["BusinessType"], data["FullAddress"], data["PostCode"]]:
+        continue
+    if any(keyword in data["BusinessType"].lower() for keyword in excluded_keywords):
+        continue
+
+    # Create the row for the CSV
+    row = [data["FHRSID"], data["BusinessName"], data["BusinessType"], data["FullAddress"], data["PostCode"], data["Hygiene"], data["Structural"], data["ConfidenceInManagement"]]
+
+    # Save to the corresponding category
+    category = category_mapping.get(data["BusinessType"])
+    if category:
+        category_data[category].append(row)
+
+        # If the category is in the combined list, add to combined_rows
+        if category in combined_categories:
+            combined_rows.append(row)
+
+# Save the combined CSV file
+combined_filename = os.path.join(data_folder, "combined_places.csv")
+save_to_csv(combined_filename, ["FHRSID", "BusinessName", "BusinessType", "FullAddress", "PostCode", "Hygiene", "Structural", "ConfidenceInManagement"], combined_rows)
+
+# Save each category to a separate CSV file (except combined categories)
+for category, rows in category_data.items():
+    if category not in combined_categories:  # Avoid saving combined categories again
+        category_filename = os.path.join(data_folder, f"{category}.csv")
+        save_to_csv(category_filename, ["FHRSID", "BusinessName", "BusinessType", "FullAddress", "PostCode", "Hygiene", "Structural", "ConfidenceInManagement"], rows)
