@@ -1,17 +1,24 @@
-import sqlite3
+import mysql.connector
+from mysql.connector import Error
 import hashlib
-import os
 
 def hash_password(password):
     return hashlib.sha256(password.encode()).hexdigest()
 
 def login_user(email, password):
-    db_path = os.path.join(os.path.dirname(__file__), '../users.db')
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
-
     try:
-        cursor.execute('SELECT first_name, last_name, email, password, is_premium FROM users WHERE email = ?', (email,))
+        conn = mysql.connector.connect(
+            host='localhost',
+            user='root',
+            password='1234',
+            database='users_db'
+        )
+
+        cursor = conn.cursor()
+        cursor.execute(
+            'SELECT first_name, last_name, email, password, is_premium FROM users WHERE email = %s', 
+            (email,)
+        )
         result = cursor.fetchone()
 
         if result:
@@ -27,5 +34,11 @@ def login_user(email, password):
                 return False, "Incorrect password."
         else:
             return False, "User not found."
+
+    except Error as e:
+        return False, f"MySQL Error: {e}"
+
     finally:
-        conn.close()
+        if conn.is_connected():
+            cursor.close()
+            conn.close()

@@ -6,8 +6,14 @@ def main():
     email = input("Email: ").strip()
     password = input("Password: ").strip()
 
-    success, message = login_user(email, password)
-    print("User logged in successfully." if success else "User login failed", message)
+    success, info = login_user(email, password)
+
+    if success:
+        print("Login successful!")
+        print(f"Welcome {info['first_name']} {info['last_name']}")
+    else:
+        print("Login failed.")
+        print(info)
 
 if __name__ == "__main__":
     main()
