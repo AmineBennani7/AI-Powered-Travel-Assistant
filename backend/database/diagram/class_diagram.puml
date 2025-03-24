@@ -1,0 +1,15 @@
+@startuml class_diagram
+skinparam classFontSize 14
+skinparam classArrowColor #2E86C1
+
+package "Database Schema" {
+  class User {
+    +id: INT (PK)
+    +first_name: VARCHAR(100)
+    +last_name: VARCHAR(100)
+    +email: VARCHAR(255)
+    +password: VARCHAR(255)
+    +is_premium: BOOLEAN
+  }
+}
+@enduml

@@ -1,0 +1,30 @@
+@startuml sequence_diagram
+
+== Registration ==
+
+actor User
+participant "register_cli.py" as CLI
+participant "register.py" as Logic
+database "MySQL DB" as DB
+
+User -> CLI : Enter first name, last name, email, password
+CLI -> Logic : register_user()
+Logic -> DB : INSERT INTO users
+DB --> Logic : Success or IntegrityError
+Logic --> CLI : Success/Error message
+CLI --> User : Feedback
+
+== Login ==
+
+actor User
+participant "login_cli.py" as CLI2
+participant "login.py" as Logic2
+database "MySQL DB" as DB2
+
+User -> CLI2 : Enter email and password
+CLI2 -> Logic2 : login_user()
+Logic2 -> DB2 : SELECT * FROM users WHERE email = ?
+DB2 --> Logic2 : User data or None
+Logic2 --> CLI2 : Success + user info / Error
+CLI2 --> User : Welcome or error message
+@enduml
