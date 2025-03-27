@@ -16,19 +16,21 @@ def login_user(email, password):
 
         cursor = conn.cursor()
         cursor.execute(
-            'SELECT first_name, last_name, email, password, is_premium FROM users WHERE email = %s', 
+            '''SELECT first_name, last_name, email, phone_number, password, is_premium 
+               FROM users WHERE email = %s''', 
             (email,)
         )
         result = cursor.fetchone()
 
         if result:
-            stored_password = result[3]
+            stored_password = result[4]
             if hash_password(password) == stored_password:
                 return True, {
                     "first_name": result[0],
                     "last_name": result[1],
                     "email": result[2],
-                    "is_premium": bool(result[4])
+                    "phone_number": result[3],
+                    "is_premium": bool(result[5])
                 }
             else:
                 return False, "Incorrect password."

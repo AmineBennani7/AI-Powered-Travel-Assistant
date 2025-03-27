@@ -9,6 +9,7 @@ package "Database Schema" {
     +last_name: VARCHAR(100)
     +email: VARCHAR(255)
     +password: VARCHAR(255)
+    +phone_number: VARCHAR(20)
     +is_premium: BOOLEAN
   }
 }

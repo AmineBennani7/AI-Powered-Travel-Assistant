@@ -1,7 +1,7 @@
 import mysql.connector
 from mysql.connector import Error
 
-#FIRST, in the console mysql: CREATE DATABASE users_db;
+# FIRST, in the MySQL console: CREATE DATABASE users_db;
 
 def create_database_if_not_exists():
     try:
@@ -18,14 +18,13 @@ def create_database_if_not_exists():
     except Error as e:
         print(f"Error creating database: {e}")
 
-
 def create_mysql_connection():
     try:
         connection = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='1234',   
-            database='users_db'         
+            password='1234',
+            database='users_db'
         )
         return connection
     except Error as e:
@@ -45,6 +44,7 @@ def create_users_table():
         first_name VARCHAR(100) NOT NULL,
         last_name VARCHAR(100) NOT NULL,
         email VARCHAR(255) NOT NULL UNIQUE,
+        phone_number VARCHAR(20),
         password VARCHAR(255) NOT NULL,
         is_premium BOOLEAN NOT NULL DEFAULT FALSE
     );
