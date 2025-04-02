@@ -1,6 +1,7 @@
 import 'package:example/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'next_screen.dart';
+import 'services/auth_service.dart';
 
 class SignUpScreen extends StatelessWidget {
   @override
@@ -20,20 +21,44 @@ class SignUp extends StatefulWidget {
 }
 
 class _SignUpState extends State<SignUp> {
+  final AuthService _authService = AuthService();
+
   final TextEditingController _firstNameController = TextEditingController();
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
 
-  void _onSignUp() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => NextScreen()), //navigation to next screen
+ void _onSignUp() async {
+  if (_passwordController.text != _confirmPasswordController.text) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Passwords do not match'), backgroundColor: Colors.red),
+    );
+    return;
+  }
+
+  final response = await _authService.registerUser(
+    _firstNameController.text,
+    _lastNameController.text,
+    _emailController.text,
+    _phoneController.text,
+    _passwordController.text,
+  );
+
+  if (response['success']) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(response['message']), backgroundColor: Colors.green),
+    );
+    Navigator.push(context, MaterialPageRoute(builder: (context) => NextScreen()));
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error: ${response['message']}'), backgroundColor: Colors.red),
     );
   }
+}
+
+
 
   @override
   Widget build(BuildContext context) {
