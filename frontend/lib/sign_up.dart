@@ -1,3 +1,4 @@
+import 'package:example/recommendations.dart';
 import 'package:example/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'next_screen.dart';
@@ -50,7 +51,7 @@ class _SignUpState extends State<SignUp> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(response['message']), backgroundColor: Colors.green),
     );
-    Navigator.push(context, MaterialPageRoute(builder: (context) => NextScreen()));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => RecommendationsPage()));
   } else {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Error: ${response['message']}'), backgroundColor: Colors.red),
