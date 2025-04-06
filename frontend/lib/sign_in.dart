@@ -1,6 +1,6 @@
 import 'package:example/forgot_password.dart';
+import 'package:example/recommendations.dart';
 import 'package:flutter/material.dart';
-import 'next_screen.dart';
 import 'services/auth_service.dart';
 
 class SignIn extends StatelessWidget {
@@ -42,7 +42,7 @@ class _SignInFormState extends State<SignInForm> {
       );
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => NextScreen()),
+        MaterialPageRoute(builder: (context) => RecommendationsPage()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
