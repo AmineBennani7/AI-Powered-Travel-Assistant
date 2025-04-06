@@ -2,7 +2,6 @@ from flask_restful import Resource, reqparse
 from langchain.memory import ConversationBufferMemory
 import pandas as pd
 import re
-import os
 from chatbot_utils import load_dataset, create_chunks, create_or_get_vector_store, get_conversation_chain
 from chatbot_preprompts import system_message_prompt_info
 
@@ -14,10 +13,10 @@ vector_stores = {}
 
 # Mapping of categories to their respective CSV files
 csv_files = {
-    "combined": "data/combined_places.csv",
-    "pubs": "data/pubs.csv",
-    "restaurants": "data/restaurants.csv",
-    "retailers_other": "data/retailers_other.csv",
+    "combined": "backend/data/combined_places.csv",
+    "pubs": "backend/data/pubs.csv",
+    "restaurants": "backend/data/restaurants.csv",
+    "retailers_other": "backend/data/retailers_other.csv",
 }
 
 # Regular expressions to detect the correct category
