@@ -1,5 +1,6 @@
 import 'package:example/forgot_password.dart';
 import 'package:example/recommendations.dart';
+import 'package:example/sign_up.dart';
 import 'package:flutter/material.dart';
 import 'services/auth_service.dart';
 
@@ -153,6 +154,39 @@ class _SignInFormState extends State<SignInForm> {
             ),
           ),
         ),
+
+        SizedBox(height: screenHeight * 0.03),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'New User?',
+                    style: TextStyle(
+                      color: Color(0xFF707B81),
+                      fontSize: screenWidth * 0.04,
+                    ),
+                  ),
+                  SizedBox(width: screenWidth * 0.01),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignUp()),
+                      );
+                    },
+                    child: Text(
+                      ' Sign up',
+                      style: TextStyle(
+                        color: Color(0xFFFF7029),
+                        fontSize: screenWidth * 0.04,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: screenHeight * 0.05),
+
       ],
     );
   }

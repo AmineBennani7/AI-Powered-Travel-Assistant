@@ -1,3 +1,4 @@
+import 'package:example/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'sign_up.dart';
 
@@ -68,7 +69,7 @@ class Onboard2 extends StatelessWidget {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SignUp()),
+                      MaterialPageRoute(builder: (context) => SignIn()),
                     );
                   },
                   child: FractionallySizedBox(
