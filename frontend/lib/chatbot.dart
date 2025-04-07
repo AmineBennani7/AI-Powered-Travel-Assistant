@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'recommendations.dart'; // Assuming BottomNavBar is here
+import 'services/chat_service.dart'; // Import the chat service
 
 class ChatbotPage extends StatefulWidget {
   const ChatbotPage({super.key});
@@ -14,16 +15,32 @@ class _ChatbotPageState extends State<ChatbotPage> {
     {"sender": "bot", "text": "Hi! I am your travel assistant. How can I help you today?"}
   ];
 
-  void _sendMessage(String text) {
+  final ChatService _chatService = ChatService(); // Create instance of the service
+  bool _isLoading = false; // Add loading state
+
+  Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
 
     setState(() {
       _messages.add({"sender": "user", "text": text});
       _controller.clear();
-
-      // Placeholder for chatbot response
-      _messages.add({"sender": "bot", "text": "I am here to help"});
+      _isLoading = true; // Set loading to true while waiting for response
     });
+
+    try {
+      // Get response from API
+      final botResponse = await _chatService.sendMessage(text);
+      
+      setState(() {
+        _messages.add({"sender": "bot", "text": botResponse});
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _messages.add({"sender": "bot", "text": "Sorry, I encountered an error. Please try again."});
+        _isLoading = false;
+      });
+    }
   }
 
   Widget _buildMessage(Map<String, String> message) {
@@ -98,6 +115,18 @@ class _ChatbotPageState extends State<ChatbotPage> {
               padding: const EdgeInsets.only(top: 20),
               itemCount: _messages.length,
               itemBuilder: (context, index) => _buildMessage(_messages[index]),
+            ),
+          ),
+        // Add loading indicator
+        if (_isLoading)
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Center(
+              child: SizedBox(
+                width: 24,
+                height: 24,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
             ),
           ),
           const Divider(height: 1),
