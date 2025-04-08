@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ChatService {
-  final String baseUrl = 'http://10.0.2.2:5000'; // IP local for android emulator
+  final String baseUrl = 'http://10.0.2.2:5000'; 
   String? _sessionId;
 
   Future<void> _initSession() async {
@@ -12,32 +12,33 @@ class ChatService {
     _sessionId = prefs.getString('session_id');
 
     if (_sessionId == null) {
-        _sessionId = DateTime.now().millisecondsSinceEpoch.toString();
-        await prefs.setString('session_id', _sessionId!);
-    }  
+      _sessionId = DateTime.now().millisecondsSinceEpoch.toString();
+      await prefs.setString('session_id', _sessionId!);
+    }
   }
-
 
   Future<String> sendMessage(String message) async {
     await _initSession();
 
-    final response = await http.post(
+    try {
+      final response = await http.post(
         Uri.parse('$baseUrl/chat'),
-        headers: {'Content-Type': 'application/json',},
+        headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-            'message': message,
-            'session_id': _sessionId,
+          'message': message,
+          'session_id': _sessionId,
         }),
-        );
-    if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return data['message'];
+      );
+
+     if (response.statusCode == 200) {
+  // No uses jsonDecode ya que la respuesta es texto plano
+      return response.body;
     } else {
-        throw Exception('Failed to get response from the assistant');
+        return 'Error: ${response.statusCode} - ${response.reasonPhrase}';
+}
+    } catch (e) {
+      return 'Error al conectar con el servidor: $e';
     }
   }
-   
 }
-
-
 

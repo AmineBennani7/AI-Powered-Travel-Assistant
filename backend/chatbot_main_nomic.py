@@ -19,13 +19,20 @@ def init_memory():
     )
     return memory
 
-# Mapping of categories to their respective CSV files
+import os
+
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+data_dir = os.path.join(script_dir, "data")
+
 csv_files = {
-    "combined": "data/combined_places.csv",
-    "pubs": "data/pubs.csv",
-    "restaurants": "data/restaurants.csv",
-    "retailers_other": "data/retailers_other.csv",
+    "combined": os.path.join(data_dir, "combined_places.csv"),
+    "pubs": os.path.join(data_dir, "pubs.csv"),
+    "restaurants": os.path.join(data_dir, "restaurants.csv"),
+    "retailers_other": os.path.join(data_dir, "retailers_other.csv"),
 }
+
+
 
 # Regular expressions to detect the correct category
 regex_patterns = {
@@ -69,10 +76,15 @@ def create_vector_store_for_csv(df, dataset_name):
     """
     Creates or loads a vector store for the given dataset.
     """
+    file_name = os.path.basename(dataset_name)
+
     chunks = create_chunks(df, 2000, 0)
-    vector_store = create_or_get_vector_store(chunks, dataset_name) 
+
+    vector_db_path = os.path.join("vectorialDB", file_name)
+
+    vector_store = create_or_get_vector_store(chunks, vector_db_path)
     return vector_store
-    
+
 def main():
     load_dotenv()
     memory = init_memory()
