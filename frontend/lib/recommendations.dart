@@ -16,14 +16,11 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Fetch the arguments passed via pushNamed
-    final args = ModalRoute.of(context)?.settings.arguments;
-    if (args is Map && args.containsKey('firstName')) {
+    // Use firstName passed from SignUp or SignIn
+    if (widget.firstName != null && widget.firstName!.isNotEmpty) {
       setState(() {
-        _userName = args['firstName'].toString().isNotEmpty ? args['firstName'] : 'User';
+        _userName = widget.firstName!;
       });
-    } else if (widget.firstName != null && widget.firstName!.isNotEmpty) {
-      _userName = widget.firstName!;
     }
   }
 
@@ -81,7 +78,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
               ],
             ),
           ),
-
           // Category buttons
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

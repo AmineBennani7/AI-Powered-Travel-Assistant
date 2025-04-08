@@ -1,6 +1,5 @@
-import 'package:example/recommendations.dart';
-import 'package:example/sign_in.dart';
 import 'package:flutter/material.dart';
+import 'package:example/recommendations.dart';
 import 'services/auth_service.dart';
 
 class SignUpScreen extends StatelessWidget {
@@ -30,35 +29,39 @@ class _SignUpState extends State<SignUp> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
- void _onSignUp() async {
-  if (_passwordController.text != _confirmPasswordController.text) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Passwords do not match'), backgroundColor: Colors.red),
+  void _onSignUp() async {
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Passwords do not match'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    final response = await _authService.registerUser(
+      _firstNameController.text,
+      _lastNameController.text,
+      _emailController.text,
+      _phoneController.text,
+      _passwordController.text,
     );
-    return;
+
+    if (response['success']) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(response['message']), backgroundColor: Colors.green),
+      );
+      // After successful registration, pass firstName to RecommendationsPage
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RecommendationsPage(firstName: _firstNameController.text),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${response['message']}'), backgroundColor: Colors.red),
+      );
+    }
   }
-
-  final response = await _authService.registerUser(
-    _firstNameController.text,
-    _lastNameController.text,
-    _emailController.text,
-    _phoneController.text,
-    _passwordController.text,
-  );
-
-  if (response['success']) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(response['message']), backgroundColor: Colors.green),
-    );
-    Navigator.push(context, MaterialPageRoute(builder: (context) => RecommendationsPage()));
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error: ${response['message']}'), backgroundColor: Colors.red),
-    );
-  }
-}
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -156,58 +159,6 @@ class _SignUpState extends State<SignUp> {
                 ),
               ),
               SizedBox(height: screenHeight * 0.03),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Already have an account?',
-                    style: TextStyle(
-                      color: Color(0xFF707B81),
-                      fontSize: screenWidth * 0.04,
-                    ),
-                  ),
-                  SizedBox(width: screenWidth * 0.01),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => SignIn()),
-                      );
-                    },
-                    child: Text(
-                      'Sign in',
-                      style: TextStyle(
-                        color: Color(0xFFFF7029),
-                        fontSize: screenWidth * 0.04,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: screenHeight * 0.05),
-
-              // Social Media Icons
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildSocialIcon(Icons.facebook, Colors.blue),
-                  _buildSocialIcon(Icons.mail, Colors.red),
-                  SizedBox(
-                    width: screenWidth * 0.1, // 10% of screen width
-                    height: screenWidth * 0.1, // Maintain aspect ratio
-                    child: IconButton(
-                      icon: Image.asset(
-                        'assets/images/twitter.png',
-                        fit: BoxFit.contain, // Ensures proper scaling
-                      ),
-                      onPressed: () {},
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: screenHeight * 0.05),
             ],
           ),
         ),
@@ -239,12 +190,4 @@ class _SignUpState extends State<SignUp> {
       ),
     );
   }
-
-  Widget _buildSocialIcon(IconData icon, Color color) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 10),
-      child: IconButton(icon: Icon(icon, color: color), onPressed: () {}),
-    );
-  }
 }
-
