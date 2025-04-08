@@ -10,7 +10,7 @@ def login_user(email, password):
         conn = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='1234',
+            password='root123',
             database='users_db'
         )
 

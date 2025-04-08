@@ -1,7 +1,6 @@
 import 'package:example/recommendations.dart';
 import 'package:example/sign_in.dart';
 import 'package:flutter/material.dart';
-import 'next_screen.dart';
 import 'services/auth_service.dart';
 
 class SignUpScreen extends StatelessWidget {

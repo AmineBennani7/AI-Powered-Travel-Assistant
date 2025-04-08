@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'splash_screen.dart';
+import 'recommendations.dart';
+import 'profile.dart';
+import 'chatbot.dart';
 
 void main() {
   runApp(const FigmaToCodeApp());
@@ -20,8 +23,13 @@ class FigmaToCodeApp extends StatelessWidget {
           unselectedItemColor: Colors.grey,
         ),
       ),
-
-      home: SplashScreen(),
+      home: SplashScreen(), // Your splash screen entry point
+      routes: {
+        '/recommendations': (context) => const RecommendationsPage(),
+        '/profile': (context) => const ProfilePage(),
+        '/chatbot': (context) => const ChatbotPage(),
+        '/settings': (context) => const ProfilePage(), // Use your real settings page here if available
+      },
     );
   }
 }
