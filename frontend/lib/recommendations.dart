@@ -13,10 +13,17 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   String _userName = 'User';
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.firstName != null && widget.firstName!.isNotEmpty) {
+      _userName = widget.firstName!;
+    }
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // If the user returned from profile with data, grab it
     final args = ModalRoute.of(context)?.settings.arguments;
     if (args is Map && args.containsKey('firstName')) {
       setState(() {
