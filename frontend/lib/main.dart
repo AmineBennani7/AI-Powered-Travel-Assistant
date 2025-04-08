@@ -1,3 +1,4 @@
+import 'package:example/calendar.dart';
 import 'package:flutter/material.dart';
 import 'splash_screen.dart';
 import 'recommendations.dart';
@@ -28,7 +29,7 @@ class FigmaToCodeApp extends StatelessWidget {
         '/recommendations': (context) => const RecommendationsPage(),
         '/profile': (context) => const ProfilePage(),
         '/chatbot': (context) => const ChatbotPage(),
-        '/settings': (context) => const ProfilePage(), // Use your real settings page here if available
+        '/calendar': (context) => const CalendarPage(), 
       },
     );
   }
