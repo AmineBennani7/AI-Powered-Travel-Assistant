@@ -35,7 +35,7 @@ def register_user(first_name, last_name, email, phone_number, password):
         conn = mysql.connector.connect(
             host='localhost',
             user='root',
-            password='1234',
+            password='root123',
             database='users_db'
         )
         cursor = conn.cursor()
