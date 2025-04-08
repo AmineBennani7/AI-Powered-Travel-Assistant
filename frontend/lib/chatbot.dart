@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'recommendations.dart'; // Assuming BottomNavBar is here
-import 'services/chat_service.dart'; // Import the chat service
+import 'package:flutter_markdown/flutter_markdown.dart';
+import 'recommendations.dart';
+import 'services/chat_service.dart';
 
 class ChatbotPage extends StatefulWidget {
   const ChatbotPage({super.key});
@@ -12,11 +13,15 @@ class ChatbotPage extends StatefulWidget {
 class _ChatbotPageState extends State<ChatbotPage> {
   final TextEditingController _controller = TextEditingController();
   final List<Map<String, String>> _messages = [
-    {"sender": "bot", "text": "Hi! I am your travel assistant. How can I help you today?"}
+    {
+      "sender": "bot",
+      "text":
+          "Hi! I am your travel assistant. How can I help you today?"
+    }
   ];
 
-  final ChatService _chatService = ChatService(); // Create instance of the service
-  bool _isLoading = false; // Add loading state
+  final ChatService _chatService = ChatService();
+  bool _isLoading = false;
 
   Future<void> _sendMessage(String text) async {
     if (text.trim().isEmpty) return;
@@ -24,20 +29,21 @@ class _ChatbotPageState extends State<ChatbotPage> {
     setState(() {
       _messages.add({"sender": "user", "text": text});
       _controller.clear();
-      _isLoading = true; // Set loading to true while waiting for response
+      _isLoading = true;
     });
 
     try {
-      // Get response from API
       final botResponse = await _chatService.sendMessage(text);
-      
       setState(() {
         _messages.add({"sender": "bot", "text": botResponse});
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _messages.add({"sender": "bot", "text": "Sorry, I encountered an error. Please try again."});
+        _messages.add({
+          "sender": "bot",
+          "text": "Sorry, I encountered an error. Please try again."
+        });
         _isLoading = false;
       });
     }
@@ -59,7 +65,6 @@ class _ChatbotPageState extends State<ChatbotPage> {
               child: CircleAvatar(
                 radius: 16,
                 backgroundColor: Colors.blueAccent,
-                // TODO: Replace with actual image asset
               ),
             ),
           Flexible(
@@ -70,11 +75,13 @@ class _ChatbotPageState extends State<ChatbotPage> {
                 color: isUser ? const Color(0xFF4285F4) : Colors.white,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Text(
-                message['text']!,
-                style: TextStyle(
-                  color: isUser ? Colors.white : Colors.black87,
-                  fontSize: 15,
+              child: MarkdownBody(
+                data: message['text']!,
+                styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(
+                  p: TextStyle(
+                    fontSize: 15,
+                    color: isUser ? Colors.white : Colors.black87,
+                  ),
                 ),
               ),
             ),
@@ -85,7 +92,6 @@ class _ChatbotPageState extends State<ChatbotPage> {
               child: CircleAvatar(
                 radius: 16,
                 backgroundColor: Colors.grey,
-                // TODO: Replace with user profile image
               ),
             ),
         ],
@@ -117,18 +123,17 @@ class _ChatbotPageState extends State<ChatbotPage> {
               itemBuilder: (context, index) => _buildMessage(_messages[index]),
             ),
           ),
-        // Add loading indicator
-        if (_isLoading)
-          const Padding(
-            padding: EdgeInsets.all(8.0),
-            child: Center(
-              child: SizedBox(
-                width: 24,
-                height: 24,
-                child: CircularProgressIndicator(strokeWidth: 2),
+          if (_isLoading)
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Center(
+                child: SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
               ),
             ),
-          ),
           const Divider(height: 1),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -151,9 +156,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
                 ),
                 IconButton(
                   icon: const Icon(Icons.mic, color: Colors.blue),
-                  onPressed: () {
-                    // TODO: Implement voice input
-                  },
+                  onPressed: () {},
                 ),
                 IconButton(
                   icon: const Icon(Icons.send, color: Colors.blue),

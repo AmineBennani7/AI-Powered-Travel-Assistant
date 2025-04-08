@@ -31,7 +31,6 @@ class ChatService {
       );
 
      if (response.statusCode == 200) {
-  // No uses jsonDecode ya que la respuesta es texto plano
       return response.body;
     } else {
         return 'Error: ${response.statusCode} - ${response.reasonPhrase}';
