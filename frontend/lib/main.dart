@@ -1,4 +1,5 @@
 import 'package:example/calendar.dart';
+import 'package:example/premium.dart';
 import 'package:flutter/material.dart';
 import 'splash_screen.dart';
 import 'recommendations.dart';
@@ -25,13 +26,14 @@ class FigmaToCodeApp extends StatelessWidget {
           unselectedItemColor: Colors.grey,
         ),
       ),
-      home: SplashScreen(), // Your splash screen entry point
-      routes: {
+      home: SplashScreen(), // this makes screen show
+      routes: { // Pages routing, very important, without this the menu doesn't work
         '/sign_in': (context) => SignIn(),
         '/recommendations': (context) => const RecommendationsPage(),
         '/profile': (context) => const ProfilePage(),
         '/chatbot': (context) => const ChatbotPage(),
         '/calendar': (context) => const CalendarPage(), 
+        '/premium' : (context) => const PremiumPage(),
       },
     );
   }
