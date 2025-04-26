@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 
 class RecommendationsPage extends StatefulWidget {
   final String? firstName;
@@ -12,15 +13,19 @@ class RecommendationsPage extends StatefulWidget {
 
 class _RecommendationsPageState extends State<RecommendationsPage> {
   String _userName = 'User';
+  List<String> _businessNames = [];
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (widget.firstName != null && widget.firstName!.isNotEmpty) {
-      setState(() {
-        _userName = widget.firstName!;
-      });
-    }
+  void initState() {
+    super.initState();
+    _loadBusinessNames();
+  }
+
+  Future<void> _loadBusinessNames() async {
+    final String fileContent = await rootBundle.loadString('assets/data/business_names.txt');
+    setState(() {
+      _businessNames = fileContent.split('\n').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    });
   }
 
   Future<void> _confirmLogout() async {
@@ -48,6 +53,14 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (widget.firstName != null && widget.firstName!.isNotEmpty) {
+      _userName = widget.firstName!;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
@@ -55,7 +68,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top bar
+          // Top Bar
           Container(
             padding: const EdgeInsets.only(
               top: kToolbarHeight,
@@ -66,7 +79,6 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
             color: const Color(0xFF4285F4),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 GestureDetector(
                   onTap: () async {
@@ -119,7 +131,9 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: 5,
-              itemBuilder: (context, index) => ProductCard(),
+              itemBuilder: (context, index) => ProductCard(
+                businessNames: _businessNames,
+              ),
             ),
           ),
         ],
@@ -154,7 +168,8 @@ class CategoryButton extends StatelessWidget {
 }
 
 class ProductCard extends StatelessWidget {
-  ProductCard({super.key});
+  final List<String> businessNames;
+  ProductCard({super.key, required this.businessNames});
 
   final List<String> _localImages = [
     'assets/images/reco1.jpg',
@@ -173,6 +188,9 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final String selectedImage = _localImages[_random.nextInt(_localImages.length)];
+    final String randomBusiness = businessNames.isNotEmpty
+        ? businessNames[_random.nextInt(businessNames.length)]
+        : "Product Name";
 
     return Container(
       width: double.infinity,
@@ -235,9 +253,9 @@ class ProductCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          const Text(
-            "Product Name",
-            style: TextStyle(
+          Text(
+            randomBusiness,
+            style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
               color: Color(0xFF1B1B1B),
