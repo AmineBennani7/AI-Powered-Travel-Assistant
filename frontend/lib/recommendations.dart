@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 
 class RecommendationsPage extends StatefulWidget {
@@ -15,12 +16,34 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    // Use firstName passed from SignUp or SignIn
     if (widget.firstName != null && widget.firstName!.isNotEmpty) {
       setState(() {
         _userName = widget.firstName!;
       });
+    }
+  }
+
+  Future<void> _confirmLogout() async {
+    final shouldLogout = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirm Logout'),
+        content: const Text('Are you sure you want to log out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Logout', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldLogout == true && mounted) {
+      Navigator.pushNamedAndRemoveUntil(context, '/sign_in', (route) => false);
     }
   }
 
@@ -32,7 +55,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Custom top bar
+          // Top bar
           Container(
             padding: const EdgeInsets.only(
               top: kToolbarHeight,
@@ -70,15 +93,14 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.settings, color: Colors.white),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/settings');
-                  },
+                  icon: const Icon(Icons.logout, color: Colors.white),
+                  onPressed: _confirmLogout,
                 ),
               ],
             ),
           ),
-          // Category buttons
+
+          // Category Buttons
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Row(
@@ -97,7 +119,7 @@ class _RecommendationsPageState extends State<RecommendationsPage> {
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: 5,
-              itemBuilder: (context, index) => const ProductCard(),
+              itemBuilder: (context, index) => ProductCard(),
             ),
           ),
         ],
@@ -132,10 +154,26 @@ class CategoryButton extends StatelessWidget {
 }
 
 class ProductCard extends StatelessWidget {
-  const ProductCard({super.key});
+  ProductCard({super.key});
+
+  final List<String> _localImages = [
+    'assets/images/reco1.jpg',
+    'assets/images/reco2.jpg',
+    'assets/images/reco3.jpg',
+    'assets/images/reco5.jpg',
+    'assets/images/reco6.jpg',
+    'assets/images/reco7.jpg',
+    'assets/images/reco8.jpg',
+    'assets/images/reco9.jpg',
+    'assets/images/reco10.jpg',
+  ];
+
+  final Random _random = Random();
 
   @override
   Widget build(BuildContext context) {
+    final String selectedImage = _localImages[_random.nextInt(_localImages.length)];
+
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 16),
@@ -158,8 +196,8 @@ class ProductCard extends StatelessWidget {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  "https://picsum.photos/364/121",
+                child: Image.asset(
+                  selectedImage,
                   height: 121,
                   width: double.infinity,
                   fit: BoxFit.cover,
@@ -185,18 +223,6 @@ class ProductCard extends StatelessWidget {
                 right: 8,
                 child: Icon(Icons.favorite_border, color: Colors.white),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              _buildColorCircle(Colors.black),
-              const SizedBox(width: 8),
-              _buildColorCircle(const Color(0xFF803B90)),
-              const SizedBox(width: 8),
-              _buildColorCircle(const Color(0xFFE0342C)),
-              const SizedBox(width: 8),
-              const Text("+7 Colors", style: TextStyle(fontSize: 12))
             ],
           ),
           const SizedBox(height: 12),
@@ -244,18 +270,6 @@ class ProductCard extends StatelessWidget {
             ),
           )
         ],
-      ),
-    );
-  }
-
-  Widget _buildColorCircle(Color color) {
-    return Container(
-      width: 24,
-      height: 24,
-      decoration: BoxDecoration(
-        color: color,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2),
       ),
     );
   }

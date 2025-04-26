@@ -72,6 +72,15 @@ flutter:
     - assets/images/logo.png
     - assets/images/splash.png
     - assets/images/twitter.png
+    - assets/images/reco1.jpg
+    - assets/images/reco2.jpg
+    - assets/images/reco3.jpg
+    - assets/images/reco5.jpg
+    - assets/images/reco6.jpg
+    - assets/images/reco7.jpg
+    - assets/images/reco8.jpg
+    - assets/images/reco9.jpg
+    - assets/images/reco10.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'recommendations.dart';
 import 'services/chat_service.dart';
+import 'services/chat_state.dart';
 
 class ChatbotPage extends StatefulWidget {
   const ChatbotPage({super.key});
@@ -12,14 +13,6 @@ class ChatbotPage extends StatefulWidget {
 
 class _ChatbotPageState extends State<ChatbotPage> {
   final TextEditingController _controller = TextEditingController();
-  final List<Map<String, String>> _messages = [
-    {
-      "sender": "bot",
-      "text":
-          "Hi! I am your travel assistant. How can I help you today?"
-    }
-  ];
-
   final ChatService _chatService = ChatService();
   bool _isLoading = false;
 
@@ -27,7 +20,6 @@ class _ChatbotPageState extends State<ChatbotPage> {
     if (text.trim().isEmpty) return;
 
     setState(() {
-      _messages.add({"sender": "user", "text": text});
       _controller.clear();
       _isLoading = true;
     });
@@ -35,15 +27,11 @@ class _ChatbotPageState extends State<ChatbotPage> {
     try {
       final botResponse = await _chatService.sendMessage(text);
       setState(() {
-        _messages.add({"sender": "bot", "text": botResponse});
         _isLoading = false;
       });
     } catch (e) {
       setState(() {
-        _messages.add({
-          "sender": "bot",
-          "text": "Sorry, I encountered an error. Please try again."
-        });
+        ChatState.instance.addMessage("bot", "Sorry, I encountered an error. Please try again.");
         _isLoading = false;
       });
     }
@@ -55,8 +43,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Row(
-        mainAxisAlignment:
-            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isUser)
@@ -119,8 +106,8 @@ class _ChatbotPageState extends State<ChatbotPage> {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.only(top: 20),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) => _buildMessage(_messages[index]),
+              itemCount: ChatState.instance.messages.length,
+              itemBuilder: (context, index) => _buildMessage(ChatState.instance.messages[index]),
             ),
           ),
           if (_isLoading)

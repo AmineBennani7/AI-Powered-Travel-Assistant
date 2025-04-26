@@ -21,4 +21,8 @@ class ChatState {
   void setRecommendations(List<Map<String, dynamic>> recs) {
     _recommendations = recs;
   }
+
+  void clearMessages() {
+    _messages.clear();
+  }
 }

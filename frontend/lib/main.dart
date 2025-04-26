@@ -4,6 +4,7 @@ import 'splash_screen.dart';
 import 'recommendations.dart';
 import 'profile.dart';
 import 'chatbot.dart';
+import 'sign_in.dart';
 
 void main() {
   runApp(const FigmaToCodeApp());
@@ -26,6 +27,7 @@ class FigmaToCodeApp extends StatelessWidget {
       ),
       home: SplashScreen(), // Your splash screen entry point
       routes: {
+        '/sign_in': (context) => SignIn(),
         '/recommendations': (context) => const RecommendationsPage(),
         '/profile': (context) => const ProfilePage(),
         '/chatbot': (context) => const ChatbotPage(),

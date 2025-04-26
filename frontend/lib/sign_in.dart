@@ -73,9 +73,8 @@ class _SignInFormState extends State<SignInForm> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: screenHeight * 0.05),
-        IconButton(
-          icon: Icon(Icons.arrow_back, size: 30),
-          onPressed: () => Navigator.pop(context),
+        SizedBox(
+          height: 30,
         ),
         Center(
           child: Image.asset(
