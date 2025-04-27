@@ -91,7 +91,7 @@ Project Link: [https://github.com/AmineBennani7/AI-Powered-Travel-Assistant.git]
 ## Acknowledgements
 
 - [Python](https://www.python.org/)
-- [Flask](https://flask.palletsprojects.com/) (depending on framework used)
+- [Flask](https://flask.palletsprojects.com/)
 - [Google Maps API](https://developers.google.com/maps)
 - [OpenWeather API](https://openweathermap.org/api)
 - [OpenAI API](https://openai.com/api/)
