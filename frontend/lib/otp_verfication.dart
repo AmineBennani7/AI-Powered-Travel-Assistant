@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'next_screen.dart';
 
 class Verification extends StatelessWidget {
+  const Verification({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

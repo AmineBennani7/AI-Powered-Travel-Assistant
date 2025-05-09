@@ -2,6 +2,8 @@ import 'package:example/otp_verfication.dart';
 import 'package:flutter/material.dart';
 
 class ForgotPassword extends StatelessWidget {
+  const ForgotPassword({super.key});
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;

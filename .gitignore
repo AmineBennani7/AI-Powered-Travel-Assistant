@@ -8,8 +8,12 @@ venv/
 backend/.env
 
 backend/vectorialDB/
+backend/.pytest_cache
+backend/__pycache__/
 
 .DS_Store
 Thumbs.db
 
 .vscode/
+**/*.pyc
+**/*.pyo

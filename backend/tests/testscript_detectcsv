@@ -1,0 +1,24 @@
+"""
+This script was used to observe the behaviour of the detect_csv_from_query function from the chatbot_main_nomic module when it was initally failing a test."""
+
+# Use absolute imports instead of relative
+import sys
+import os
+
+# Add the parent directory to the Python path
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
+
+# Now use absolute import
+from chatbot_main_nomic import detect_csv_from_query
+
+test_queries = [
+    "What are some good restaurants in Oxford?",
+    "I'm looking for places to eat",
+    "Can you recommend a restaurant for dinner?"
+]
+
+for query in test_queries:
+    print(f"Query: {query}")
+    print(f"Detected CSV: {detect_csv_from_query(query)}")
+    print("-" * 50)

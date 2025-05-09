@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'services/auth_service.dart';
 
 class SignIn extends StatelessWidget {
+  const SignIn({super.key});
+
   @override
   Widget build(BuildContext context) {
     final double screenWidth = MediaQuery.of(context).size.width;
@@ -21,6 +23,8 @@ class SignIn extends StatelessWidget {
 }
 
 class SignInForm extends StatefulWidget {
+  const SignInForm({super.key});
+
   @override
   _SignInFormState createState() => _SignInFormState();
 }
